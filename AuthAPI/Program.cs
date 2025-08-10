@@ -127,43 +127,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// SeedAdmin method
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        await SeedAdmin(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurri� un error durante la siembra de datos.");
-    }
-}
-
 app.Run();
-
-// SeedAdmin method implementation
-static async Task SeedAdmin(IServiceProvider serviceProvider)
-{
-    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
-
-    // 1. Crear el rol Admin si no existe
-    if (!await roleManager.RoleExistsAsync("Admin"))
-    {
-        await roleManager.CreateAsync(new IdentityRole("Admin"));
-    }
-
-    // 2. Buscar el usuario al que quieres hacer admin
-    var user = await userManager.FindByEmailAsync("contact.repitrack@gmail.com");
-    if (user != null)
-    {
-        // 3. Asignar el rol Admin
-        if (!await userManager.IsInRoleAsync(user, "Admin"))
-        {
-            await userManager.AddToRoleAsync(user, "Admin");
-        }
-    }
-}
