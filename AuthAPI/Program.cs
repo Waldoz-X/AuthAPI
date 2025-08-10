@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+//JWTSettings
+var JWTSettings = builder.Configuration.GetSection("JWTSetting");
 
 // Configuraci�n de CORS
 builder.Services.AddCors(options =>
@@ -75,8 +78,12 @@ builder.Services.AddAuthentication(opt =>
 });
 
 builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+//builder.Services.AddOpenApi();
 
+//Añadiendo Swagger
 builder.Services.AddEndpointsApiExplorer();
+//Agregando la Definición de Seguridad
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthAPI", Version = "v1" });
@@ -88,31 +95,34 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
+   {
+       {
+           new OpenApiSecurityScheme
+           {
+               Reference = new OpenApiReference
+               {
+                   Type = ReferenceType.SecurityScheme,
+                   Id = "Bearer"
+               },
                 Scheme = "Bearer",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-            },
-            new List<string>()
-        }
-    });
+               Name = "Bearer",
+               In = ParameterLocation.Header,
+           },
+           new List<string>()
+       }
+   });
 });
 
 // --- Configuraci�n del Pipeline de Solicitudes HTTP ---
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -124,7 +134,9 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

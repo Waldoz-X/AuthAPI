@@ -10,6 +10,7 @@ namespace AuthAPI.Model
 
         public DateTime RefreshTokenExpiryTime { get; set; }
 
+        public string? FullName { get; set; }
 
 
     }
